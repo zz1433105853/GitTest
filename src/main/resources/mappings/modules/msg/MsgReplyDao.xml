@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ty.modules.sys.dao.MsgReplyDao">
+
+    <insert id="insert">
+        INSERT INTO ty_sms_send_reply
+        (id, customer_id, mobile, content, ext, src_id, c_src_id,  create_date, update_date)
+        VALUES
+        (#{id}, #{customer.id}, #{mobile}, #{content}, #{ext}, #{srcId},#{cSrcId}, #{createDate},  #{updateDate} )
+    </insert>
+
+    <insert id="batchInsert" parameterType="List">
+        INSERT INTO ty_sms_send_reply
+        (id, customer_id, mobile, content, ext, src_id, c_src_id, create_date, update_date)
+        VALUES
+        <foreach collection="list" item="reply" separator=",">
+            (#{reply.id}, #{reply.customer.id}, #{reply.mobile}, #{reply.content}, #{reply.ext}, #{reply.srcId}, #{reply.cSrcId},  #{reply.createDate},  #{reply.updateDate})
+        </foreach>
+    </insert>
+
+</mapper>

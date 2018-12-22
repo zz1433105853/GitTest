@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ty.modules.sys.dao.CxTunnelDao">
+
+	<sql id="tunnelSingleColumns">
+			a.id,
+			a.type,
+			a.sequence_number,
+			a.gateway_ip,
+			a.gateway_port,
+			a.gateway_password,
+			a.enter_code,
+			a.connect_count,
+			a.send_package_size,
+			a.content_limit_count,
+			a.service_id,
+			a.sp_id,
+			a.url,
+			a.account,
+			a.password,
+			a.send_speed,
+			a.rest_remind_mobiles,
+			a.rest_remind_count,
+			a.status,
+			a.remarks,
+			a.protocol_type AS 'protocolType',
+			a.protocol_version AS 'protocolVersion',
+			a.container_class_name AS 'containerClassName',
+			tsi.support_isp AS 'supportIspList'
+	</sql>
+
+	<sql id="tunnelColumns">
+		a.id,
+		a.type,
+		a.sequence_number,
+		a.gateway_ip,
+		a.gateway_port,
+		a.gateway_password,
+		a.enter_code,
+		a.connect_count,
+		a.send_speed,
+		a.send_package_size,
+		a.content_limit_count,
+		a.service_id,
+		a.sp_id,
+		a.url,
+		a.account,
+		a.password,
+		a.rest_remind_mobiles,
+		a.rest_remind_count,
+		a.status,
+		a.remarks,
+		a.protocol_type AS 'protocolType',
+		a.protocol_version AS 'protocolVersion',
+		a.container_class_name AS 'containerClassName',
+		GROUP_CONCAT(tsi.support_isp) AS 'supportIsps'
+	</sql>
+
+	<sql id="tunnelJoins">
+		LEFT JOIN ty_cx_tunnel_support_isp tsi ON tsi.cx_tunnel_id = a.id
+	</sql>
+
+	<resultMap id="singleTunnelResultMap" type="CxTunnel">
+		<id property="id" column="id"/>
+		<result property="type" column="type"/>
+		<result property="sequenceNumber" column="sequence_number"/>
+		<result property="gatewayIp" column="gateway_ip"/>
+		<result property="gatewayPort" column="gateway_port"/>
+		<result property="gatewayPassword" column="gateway_password"/>
+		<result property="enterCode" column="enter_code"/>
+		<result property="connectCount" column="connect_count"/>
+		<result property="sendSpeed" column="send_speed"/>
+		<result property="sendPackageSize" column="send_package_size"/>
+		<result property="contentLimitCount" column="content_limit_count"/>
+		<result property="url" column="url"/>
+		<result property="spId" column="sp_id"/>
+		<result property="serviceId" column="service_id"/>
+		<result property="account" column="account"/>
+		<result property="password" column="password"/>
+		<result property="restRemindMobiles" column="rest_remind_mobiles"/>
+		<result property="restRemindCount" column="rest_remind_count"/>
+		<result property="status" column="status"/>
+		<result property="remarks" column="remarks"/>
+		<result property="protocolType" column="protocolType"/>
+		<result property="protocolVersion" column="protocolVersion"/>
+		<result property="containerClassName" column="containerClassName"/>
+		<collection property="supportIspList" ofType="java.lang.String">
+			<result property="isp" column="supportIspList"/>
+		</collection>
+	</resultMap>
+
+	<select id="get" resultMap="singleTunnelResultMap">
+		SELECT
+		<include refid="tunnelSingleColumns"/>
+		FROM ty_cx_tunnel a
+		<include refid="tunnelJoins"/>
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="CxTunnel">
+		SELECT
+		<include refid="tunnelColumns"/>
+		FROM ty_cx_tunnel a
+		<include refid="tunnelJoins"/>
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL}
+		<if test="type!=null and type !=''">
+			AND a.type = #{type}
+		</if>
+		<if test="sequenceNumber!=null and sequenceNumber !=''">
+			AND a.sequence_number = #{sequenceNumber}
+		</if>
+		<if test="gatewayIp!=null and gatewayIp!=''">
+			AND a.gateway_ip = #{gatewayIp}
+		</if>
+		<if test="gatewayPort!=null and gatewayPort!=''">
+			AND a.gateway_port = #{gatewayPort}
+		</if>
+		<if test="enterCode!=null and enterCode!=''">
+			AND a.enter_code = #{enterCode}
+		</if>
+		<if test="connectCount!=null and connectCount!=0">
+			AND a.connect_count = #{connectCount}
+		</if>
+		<if test="url!=null and url!=0">
+			AND a.url = #{url}
+		</if>
+		<if test="account!=null and account!=0">
+			AND a.account = #{account}
+		</if>
+		<if test="status!=null and status!='notest'">
+			AND a.status= #{status}
+		</if>
+		<if test="status!=null and status=='notest'">
+			AND a.status!= 'down'
+		</if>
+		GROUP BY a.id
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.type
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultMap="singleTunnelResultMap">
+		SELECT
+		<include refid="tunnelSingleColumns"/>
+		FROM ty_tunnel a
+		<include refid="tunnelJoins"/>
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL}
+		<if test="type!=null and type !=''">
+			AND a.type = #{type}
+		</if>
+		<if test="sequenceNumber!=null and sequenceNumber !=''">
+			AND a.sequence_number = #{sequenceNumber}
+		</if>
+		<if test="gatewayIp!=null and gatewayIp!=''">
+			AND a.gateway_ip = #{gatewayIp}
+		</if>
+		<if test="gatewayPort!=null and gatewayPort!=''">
+			AND a.gateway_port = #{gatewayPort}
+		</if>
+		<if test="enterCode!=null and enterCode!=''">
+			AND a.enter_code = #{enterCode}
+		</if>
+		<if test="connectCount!=null and connectCount!=0">
+			AND a.connect_count = #{connectCount}
+		</if>
+		<if test="url!=null and url!=0">
+			AND a.url = #{url}
+		</if>
+		<if test="account!=null and account!=0">
+			AND a.account = #{account}
+		</if>
+		<if test="status!=null">
+			AND a.status= #{status}
+		</if>
+		GROUP BY a.id
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.type
+			</otherwise>
+		</choose>
+	</select>
+
+
+
+
+
+</mapper>

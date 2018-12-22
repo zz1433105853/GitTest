@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+ 	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd"
+	default-lazy-init="true">
+
+	<description>Spring Configuration Mina</description>
+    <!-- 加载配置属性文件 -->
+	<context:property-placeholder ignore-unresolvable="true" location="classpath:system.properties" />
+
+	<!-- 配置日志过滤器 -->
+	<bean id="loggingFilter" class="org.apache.mina.filter.logging.LoggingFilter"/>
+
+	<!-- 配置解码器过滤器 -->
+	<bean id="codecFilter" class="org.apache.mina.filter.codec.ProtocolCodecFilter">
+		<constructor-arg>
+			<bean class="com.ty.modules.tunnel.send.container.mina.ClientCoderFactory">
+				<constructor-arg index="0" type="java.nio.charset.Charset">
+					<value>UTF-8</value>
+				</constructor-arg>
+			</bean>
+		</constructor-arg>
+	</bean>
+
+	<bean id="codecFilterV2" class="org.apache.mina.filter.codec.ProtocolCodecFilter">
+		<constructor-arg>
+			<bean class="com.ty.modules.tunnel.send.container.mina.ClientCoderFactoryV2">
+				<constructor-arg index="0" type="java.nio.charset.Charset">
+					<value>UTF-8</value>
+				</constructor-arg>
+			</bean>
+		</constructor-arg>
+	</bean>
+
+
+
+
+
+</beans>

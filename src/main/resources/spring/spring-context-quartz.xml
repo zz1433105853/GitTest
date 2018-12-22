@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+       http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.0.xsd
+       ">
+
+    <description>Spring Quartz Configuration</description>
+
+    <!-- 加载配置属性文件 -->
+    <context:property-placeholder ignore-unresolvable="true" location="classpath:system.properties"/>
+
+    <!--通道检测断开重启-->
+    <bean id="containerReconnectExc" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="containerReconnectJob" />
+        <property name="targetMethod" value="checkAndRestartContainer" />
+    </bean>
+    <bean id="containerReconnectTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+        <property name="jobDetail" ref="containerReconnectExc"/>
+        <property name="startDelay" value="60000"/>
+        <property name="repeatInterval" value="10000"/>
+    </bean>
+
+    <bean id="refreshCustomerCacheJobExc" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="refreshCustomerCacheJob" />
+        <property name="targetMethod" value="refreshCustomerCache" />
+    </bean>
+    <bean id="refreshCustomerCacheJobTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+        <property name="jobDetail" ref="refreshCustomerCacheJobExc"/>
+        <property name="startDelay" value="10000"/>
+        <property name="repeatInterval" value="600000"/>
+    </bean>
+    <bean id="refreshKeyWordBlackWhiteCacheJobExc" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="refreshKeyWordBlackWhiteCacheJob" />
+        <property name="targetMethod" value="refreshKeyWordBlackWhiteCacheJob" />
+    </bean>
+    <bean id="refreshKeyWordBlackWhiteCacheJobTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+        <property name="jobDetail" ref="refreshKeyWordBlackWhiteCacheJobExc"/>
+        <property name="startDelay" value="10000"/>
+        <property name="repeatInterval" value="86400000"/>
+    </bean>
+
+    <bean id="clearMobileMinuteSendCountJobExc" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="clearMobileMinuteSendCountJob" />
+        <property name="targetMethod" value="clearMobileMinuteSendCount" />
+    </bean>
+    <bean id="clearMobileHourSendCountJobExc" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="clearMobileHourSendCountJob" />
+        <property name="targetMethod" value="clearMobileHourSendCount" />
+    </bean>
+    <bean id="clearMobileDaySendCountJobExc" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="clearMobileDaySendCountJob" />
+        <property name="targetMethod" value="clearMobileDaySendCount" />
+    </bean>
+
+    <bean id="clearMobileDaySendCountJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail">
+            <ref bean="clearMobileDaySendCountJobExc"/>
+        </property>
+        <property name="cronExpression">
+            <value>0 0 0 * * ? *</value>
+        </property>
+    </bean>
+    <bean id="clearMobileMinuteSendCountJobTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+        <property name="jobDetail" ref="clearMobileMinuteSendCountJobExc"/>
+        <property name="startDelay" value="60000"/>
+        <property name="repeatInterval" value="60000"/>
+    </bean>
+    <bean id="clearMobileHourSendCountJobTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+        <property name="jobDetail" ref="clearMobileHourSendCountJobExc"/>
+        <property name="startDelay" value="60000"/>
+        <property name="repeatInterval" value="3600000"/>
+    </bean>
+
+    <!--获取第三方状态报告-->
+    <bean id="reportFetchExc" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="msgReportJob" />
+        <property name="targetMethod" value="triggerReportJob" />
+    </bean>
+    <bean id="reportFetchTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+        <property name="jobDetail" ref="reportFetchExc"/>
+        <property name="startDelay" value="10000"/>
+        <property name="repeatInterval" value="1000"/>
+    </bean>
+
+    <bean id="npCacheUpdateJobExc" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="npCacheUpdateJob" />
+        <property name="targetMethod" value="npCacheUpdate" />
+    </bean>
+
+    <bean id="npCacheUpdateJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail">
+            <ref bean="npCacheUpdateJobExc"/>
+        </property>
+        <property name="cronExpression">
+            <value>0 0 4 * * ? *</value>
+        </property>
+    </bean>
+
+    <!--获取第三方上行-->
+    <bean id="replyFetchExc" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="msgReplyJob" />
+        <property name="targetMethod" value="triggerReplyJob" />
+    </bean>
+    <bean id="replyFetchTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+        <property name="jobDetail" ref="replyFetchExc"/>
+        <property name="startDelay" value="10000"/>
+        <property name="repeatInterval" value="10000"/>
+    </bean>
+
+    <bean  class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <property name="jobDetails">
+            <list>
+                <ref bean="containerReconnectExc" />
+                <ref bean="reportFetchExc" />
+                <ref bean="replyFetchExc" />
+                <ref bean="refreshCustomerCacheJobExc" />
+                <ref bean="refreshKeyWordBlackWhiteCacheJobExc" />
+                <ref bean="clearMobileMinuteSendCountJobExc" />
+                <ref bean="clearMobileHourSendCountJobExc" />
+                <ref bean="clearMobileDaySendCountJobExc" />
+                <ref bean="npCacheUpdateJobExc" />
+            </list>
+        </property>
+        <property name="triggers">
+            <list>
+                <ref bean="containerReconnectTrigger" />
+                <ref bean="reportFetchTrigger" />
+                <ref bean="replyFetchTrigger" />
+                <ref bean="refreshKeyWordBlackWhiteCacheJobTrigger" />
+                <ref bean="refreshCustomerCacheJobTrigger" />
+                <ref bean="clearMobileMinuteSendCountJobTrigger" />
+                <ref bean="clearMobileHourSendCountJobTrigger" />
+                <ref bean="clearMobileDaySendCountJobTrigger" />
+                <ref bean="npCacheUpdateJobTrigger" />
+            </list>
+        </property>
+    </bean>
+</beans>

@@ -1,0 +1,49 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ty.modules.msg.dao.BlackWhiteListDao">
+    <sql id="blackWhiteListColumns">
+		a.id,
+		a.mobile,
+		a.customer_id AS 'customer.id'
+	</sql>
+	<!-- 获得平台黑名单记录 -->
+	<select id="findPlatformList" resultType="BlackWhiteList">
+		SELECT
+		<include refid="blackWhiteListColumns"></include>
+		FROM ty_black_white_list a
+		WHERE a.customer_id is null and a.type = 'black' and a.del_flag = '0'
+	</select>
+
+	<!-- 获得黑白名单记录 -->
+	<select id="findList" resultType="BlackWhiteList">
+		SELECT
+		<include refid="blackWhiteListColumns"></include>
+		FROM ty_black_white_list a
+		WHERE 1=1 and a.del_flag = '0' and a.customer_id is not null
+		<if test="type != null and type != ''">
+			and a.type = #{type}
+		</if>
+		<if test="customer != null and customer.id != null and customer.id != ''">
+			and a.customer_id = #{customer.id}
+		</if>
+	</select>
+
+	<resultMap id="customerResult" type="Customer">
+		<id property="id" column="customerId"/>
+		<collection property="blackWhiteListList" ofType="BlackWhiteList">
+			<id property="id" column="listId"/>
+			<result property="mobile" column="mobile"/>
+		</collection>
+	</resultMap>
+
+	<select id="findAllCustomerList" resultMap="customerResult">
+		select
+			c.id as customerId,
+			l.id as listId,
+			l.mobile as mobile
+		 from ty_customer c left join ty_black_white_list l on l.customer_id=c.id and l.del_flag='0'
+		 where 1=1 and c.status='3'
+		<if test="type != null and type != ''">
+			and l.type = #{type}
+		</if>
+	</select>
+</mapper>

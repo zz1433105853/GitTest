@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ty.modules.msg.dao.ConfigDao">
+
+	<sql id="configColumns">
+			a.id,
+			a.key,
+			a.value
+	</sql>
+
+	<select id="get" resultType="Config">
+		SELECT
+		<include refid="configColumns"/>
+		FROM sys_config a
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="Config">
+		SELECT
+		<include refid="configColumns"/>
+		FROM sys_config a
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL}
+		<if test="key!=null and key !=''">
+			AND a.key = #{key}
+		</if>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.key
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="Config">
+		SELECT
+		<include refid="configColumns"/>
+		FROM sys_config a
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL}
+		<if test="key!=null and key !=''">
+			AND a.key = #{key}
+		</if>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.key
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO sys_config(
+			id,
+			`key`,
+			`value`,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		)VALUES (
+			#{id},
+			#{key},
+			#{value},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{DEL_FLAG_NORMAL}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE sys_config
+		SET
+		`value`=#{value},
+		update_date=#{updateDate},
+		update_by=#{updateBy.id},
+		remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+
+	<select id="checkKeyExist" parameterType="java.lang.String" resultType="java.lang.Integer">
+		SELECT count(a.id) FROM sys_config a
+		WHERE a.key = #{key}
+	</select>
+</mapper>

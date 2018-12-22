@@ -1,0 +1,26 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ty.modules.msg.dao.AccountLogDao">
+    <insert id="insert">
+        INSERT INTO ty_account_log (
+        id,
+        agent_id,
+        customer_id,
+        object_type,
+        cost_type,
+        cost_count,
+        create_date,
+        remarks
+        )
+        VALUES
+        (
+        #{id},
+        #{agent.id},
+        #{customer.id},
+        #{objectType},
+        #{costType},
+        #{costCount},
+        #{createDate},
+        #{remarks}
+        )
+    </insert>
+</mapper>

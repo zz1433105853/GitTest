@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ty.modules.sys.dao.NPDao">
+	<select id="get" resultType="NP">
+		SELECT 
+			isp
+		FROM ty_np
+		WHERE mobile = #{mobile}
+	</select>
+
+	<select id="findList" resultType="NP">
+		SELECT mobile, isp FROM ty_np
+	</select>
+
+
+
+	<select id="loadAllNP" resultType="java.lang.String">
+		SELECT group_CONCAT(mobile,'@', isp) FROM ty_np
+	</select>
+
+	<select id="loadAllNpMap" resultType="java.util.Map">
+		SELECT mobile, isp FROM ty_np
+	</select>
+
+</mapper>

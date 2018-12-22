@@ -1,0 +1,13 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ty.modules.msg.dao.KeywordsDao">
+
+	<!-- 获得关键字详情 -->
+	<select id="get" resultType="Keywords">
+		SELECT
+			type,
+			content
+		FROM ty_keywords a
+		WHERE type = #{type}
+	</select>
+
+</mapper>

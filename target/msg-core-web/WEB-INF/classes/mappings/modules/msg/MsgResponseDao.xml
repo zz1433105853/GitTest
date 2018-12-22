@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ty.modules.sys.dao.MsgResponseDao">
+
+    <insert id="insert">
+        INSERT INTO ty_sms_send_response
+        (id, send_record_id, msg_id, src_id,tunnel_id, sequence_number, send_status, send_result_message, create_date, update_date)
+        VALUES
+        (#{id}, #{msgRecord.id}, #{msgId},#{srcId}, #{tunnel.id}, #{sequenceNumber}, #{sendStatus}, #{sendResultMessage}, now(), now())
+    </insert>
+
+    <insert id="batchInsert" parameterType="List">
+        INSERT INTO ty_sms_send_response
+        (id, send_record_id, msg_id,src_id, tunnel_id, sequence_number, send_status, send_result_message, create_date,
+        update_date)
+        VALUES
+        <foreach collection="list" item="resp" separator=",">
+            (#{resp.id}, #{resp.msgRecord.id}, #{resp.msgId},#{resp.srcId} ,#{resp.tunnel.id}, #{resp.sequenceNumber}, #{resp.sendStatus}, #{resp.sendResultMessage},
+            now(), now())
+        </foreach>
+    </insert>
+
+    <insert id="batchInsertSql"  parameterType="java.lang.StringBuilder">
+        ${_parameter}
+    </insert>
+
+    <select id="loadMsgResponseInfoByMsgIds" resultType="MsgResponse">
+        SELECT
+          a.id,
+          a.msg_id AS 'msgId',
+          a.src_id AS 'srcId',
+          b.id AS 'msgRecord.id',
+          b.customer_id AS 'msgRecord.customer.id',
+          b.ext
+        FROM ty_sms_send_response a
+        JOIN ty_sms_send_record b ON a.send_record_id = b.id
+          and b.add_date in(CURDATE(),
+        DATE_ADD(CURDATE(), INTERVAL 1 DAY),
+        DATE_ADD(CURDATE(), INTERVAL 2 DAY))
+        WHERE a.msg_id IN <foreach collection="list" item="msgId" separator="," open="(" close=")">#{msgId}</foreach>
+         and a.add_date in(CURDATE(),
+        DATE_ADD(CURDATE(), INTERVAL 1 DAY),
+        DATE_ADD(CURDATE(), INTERVAL 2 DAY))
+
+    </select>
+
+</mapper>
