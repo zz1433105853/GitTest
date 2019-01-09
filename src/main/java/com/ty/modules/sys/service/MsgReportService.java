@@ -25,4 +25,13 @@ public class MsgReportService extends CrudService<MsgReportDao, MsgReport> {
         return this.dao.batchInsert(list);
     }
 
+    /**
+     * 根据条件查询状态报告
+     */
+    @Transactional(readOnly = false)
+    public int findFetchedReportBySth(String taskid,String mobile,String arrivedStatus,String arrivedTime) {
+        int aa = this.dao.findFetchedReportBySth(taskid,mobile,arrivedStatus,arrivedTime);
+        logger.info("Servic层的输出"+String.valueOf(aa));
+        return  aa;
+    }
 }

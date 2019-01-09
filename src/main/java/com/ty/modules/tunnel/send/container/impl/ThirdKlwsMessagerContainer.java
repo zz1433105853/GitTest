@@ -23,7 +23,6 @@ import com.ty.modules.tunnel.send.container.entity.ThirdMessageSendklws;
 import com.ty.modules.tunnel.send.container.entity.container.klws.Arrivedklws;
 import com.ty.modules.tunnel.send.container.entity.container.klws.FetchReportParaRedisKlws;
 import com.ty.modules.tunnel.send.container.entity.container.klws.ThirdKlwsResultCode;
-import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -37,7 +36,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -70,31 +68,32 @@ public class ThirdKlwsMessagerContainer extends AbstractThirdPartyMessageContain
         }
     }
 
-   @Override
+    @Override
     public boolean sendMsg(MessageSend ms) throws UnsupportedEncodingException {
         ThirdMessageSendklws messageSend = (ThirdMessageSendklws) ms;
         String mobile = messageSend.getMobile();
         String sendcontent = messageSend.getContent();
         logger.info("send值："+sendcontent);
+
         // 创建Httpclient对象
         CloseableHttpClient httpclient = HttpClients.createDefault();
 
         // 创建http POST请求
-       // HttpPost httpPost = new HttpPost(url);
-       HttpPost httpPost = new HttpPost("http://101.251.236.60:18002/send.do");
-            String msStr=null;
-       msStr = URLEncoder.encode(sendcontent,"GB2312");
-       // 设置post参数
+        // HttpPost httpPost = new HttpPost(url);
+        HttpPost httpPost = new HttpPost("http://101.251.236.60:18002/send.do");
+      //  String msStr=URLEncoder.encode(sendcontent);
 
-        List<NameValuePair> parameters = new ArrayList<NameValuePair>();
+
+        // 设置post参数
+        List<BasicNameValuePair> parameters = new ArrayList<>();
         parameters.add(new BasicNameValuePair("ua", this.account));
         parameters.add(new BasicNameValuePair("pw", this.password));
         parameters.add(new BasicNameValuePair("mb", mobile));
-        parameters.add(new BasicNameValuePair("ms",msStr));
+        parameters.add(new BasicNameValuePair("ms", new String( sendcontent.getBytes("GBK"), "ISO8859-1" )));
         parameters.add(new BasicNameValuePair("ex", messageSend.getSrcId()));
         parameters.add(new BasicNameValuePair("dm", ""));
         // 构造一个form表单式的实体
-       logger.info("parametersd的"+parameters);
+        logger.info("parametersd的"+parameters);
         UrlEncodedFormEntity formEntity = null;
         try {
             formEntity = new UrlEncodedFormEntity(parameters);

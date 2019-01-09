@@ -11,11 +11,9 @@ import com.ty.common.utils.StringUtils;
 import com.ty.modules.core.common.disruptor.customer.CustomerEventProducer;
 import com.ty.modules.core.common.disruptor.message.utils.MessagingUtils;
 import com.ty.modules.core.common.disruptor.message.utils.PremessagingUtils;
-import com.ty.modules.core.common.disruptor.message.utils.SendDingUtils;
 import com.ty.modules.core.common.disruptor.sendLog.SendLogEventProducer;
 import com.ty.modules.msg.entity.*;
 import com.ty.modules.msg.service.MessageSubmitLogService;
-import com.ty.modules.msg.entity.Tunnel;
 import com.ty.modules.tunnel.send.container.entity.AbstractMessageSend;
 import com.ty.modules.tunnel.send.container.type.MessageContainer;
 import org.apache.log4j.Logger;
@@ -24,6 +22,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -368,7 +367,11 @@ public class MessageEventHandler implements WorkHandler<MessageEvent> {
                     //设置发送使用的相关实体
                     messageSend.setSrcId(srcId);
                     messageSend.setTunnel(tunnel);
-                    targetMessagerContainer.sendMsg(messageSend);
+                    try {
+                        targetMessagerContainer.sendMsg(messageSend);
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
                 }else {
                     //未知通道类型，不发送
                     logger.error("未知的通道类型");

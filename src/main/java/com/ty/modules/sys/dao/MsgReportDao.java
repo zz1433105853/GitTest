@@ -3,6 +3,7 @@ package com.ty.modules.sys.dao;
 import com.ty.common.persistence.CrudDao;
 import com.ty.common.persistence.annotation.MyBatisDao;
 import com.ty.modules.msg.entity.MsgReport;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -18,5 +19,8 @@ public interface MsgReportDao extends CrudDao<MsgReport> {
      * @return
      */
     int batchInsert(List<MsgReport> list);
+
+    //查询符合条件的状态报告条数
+    int findFetchedReportBySth(@Param("taskid") String taskid, @Param("mobile") String mobile, @Param("arrivedStatus") String arrivedStatus, @Param("arrivedTime") String arrivedTime);
 
 }

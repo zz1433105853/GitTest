@@ -1,7 +1,6 @@
 package com.ty.modules.tunnel.send.container.entity;
 
 import com.ty.modules.msg.entity.MsgRecord;
-import com.ty.modules.tunnel.send.container.entity.AbstractThirdPartyMessageSend;
 import com.ty.modules.tunnel.send.container.entity.container.klws.ThirdKlwsResultCode;
 
 /**

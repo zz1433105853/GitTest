@@ -3,7 +3,10 @@ package com.ty.modules.core.common.disruptor.premessaging;
 import com.google.common.collect.Lists;
 import com.lmax.disruptor.WorkHandler;
 import com.ty.common.config.Global;
-import com.ty.common.utils.*;
+import com.ty.common.utils.CacheUtils;
+import com.ty.common.utils.DateUtils;
+import com.ty.common.utils.MySQLUtils;
+import com.ty.common.utils.StringUtils;
 import com.ty.modules.core.common.disruptor.message.MessageEvent;
 import com.ty.modules.core.common.disruptor.message.utils.MessagingUtils;
 import com.ty.modules.core.common.disruptor.message.utils.PremessagingUtils;
@@ -16,14 +19,13 @@ import com.ty.modules.msg.service.SmsSendLogService;
 import com.ty.modules.tunnel.send.container.cx.MessageCxContainer;
 import com.ty.modules.tunnel.send.container.entity.AbstractMessageSend;
 import com.ty.modules.tunnel.send.container.type.MessageContainer;
-import org.apache.commons.lang.RandomStringUtils;
-import org.apache.commons.lang.math.RandomUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
@@ -830,7 +832,13 @@ public class ClientPremessagingEventHandler implements WorkHandler<MessageEvent>
                         }else{
                             targetMessagerContainer = messagingUtils.getBestContainer(msgRecord.getCustomer(), isp, true, true, false);
                         }
-                        if(targetMessagerContainer!=null)targetMessagerContainer.sendMsg(ms);
+                        if(targetMessagerContainer!=null) {
+                            try {
+                                targetMessagerContainer.sendMsg(ms);
+                            } catch (UnsupportedEncodingException e) {
+                                e.printStackTrace();
+                            }
+                        }
                     }
                 }
                 if(!notShanxi.isEmpty()) {
@@ -843,7 +851,13 @@ public class ClientPremessagingEventHandler implements WorkHandler<MessageEvent>
                         }else{
                             targetMessagerContainerForNotShanxi = messagingUtils.getBestContainer(msgRecord.getCustomer(), isp, false, true, false);
                         }
-                        if(targetMessagerContainerForNotShanxi!=null)targetMessagerContainerForNotShanxi.sendMsg(ms);
+                        if(targetMessagerContainerForNotShanxi!=null) {
+                            try {
+                                targetMessagerContainerForNotShanxi.sendMsg(ms);
+                            } catch (UnsupportedEncodingException e) {
+                                e.printStackTrace();
+                            }
+                        }
                     }
                 }
             }else {
@@ -855,7 +869,13 @@ public class ClientPremessagingEventHandler implements WorkHandler<MessageEvent>
                     }else{
                         targetMessagerContainer = messagingUtils.getBestContainer(msgRecord.getCustomer(), isp, true, true, false);
                     }
-                    if(targetMessagerContainer!=null)targetMessagerContainer.sendMsg(ms);
+                    if(targetMessagerContainer!=null) {
+                        try {
+                            targetMessagerContainer.sendMsg(ms);
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
 
             }

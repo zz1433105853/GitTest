@@ -6,13 +6,13 @@ import com.ty.modules.msg.entity.AssignedTunnel;
 import com.ty.modules.msg.entity.Customer;
 import com.ty.modules.msg.entity.MsgRecord;
 import com.ty.modules.msg.entity.Tunnel;
+import com.ty.modules.sys.service.TunnelService;
 import com.ty.modules.tunnel.send.container.common.ContainerRepo;
 import com.ty.modules.tunnel.send.container.entity.*;
 import com.ty.modules.tunnel.send.container.entity.container.qxt.ThirdQxtSendMsgresult;
 import com.ty.modules.tunnel.send.container.entity.container.yx.ThirdYxSendMsgresult;
 import com.ty.modules.tunnel.send.container.impl.*;
 import com.ty.modules.tunnel.send.container.type.MessageContainer;
-import com.ty.modules.sys.service.TunnelService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -336,7 +336,10 @@ public class MsgSendUtils {
                 result = new ThirdMessageSendAh(msgRecord);
             }else if(container instanceof  ThirdQxtMessagerContainer){
                 result = new ThirdQxtSendMsgresult(msgRecord);
-            }else {
+            }else if(container instanceof ThirdQyxsMessagerContainer){
+                result= new ThirdMessageSendQyxs(msgRecord);
+            }
+            else {
                 //未知通道类型，不发送
                 logger.error("未知的通道类型");
             }

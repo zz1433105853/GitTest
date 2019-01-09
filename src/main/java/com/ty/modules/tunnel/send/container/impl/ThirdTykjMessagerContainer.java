@@ -9,19 +9,20 @@ import com.ty.common.mapper.JsonMapper;
 import com.ty.common.utils.DateUtils;
 import com.ty.common.utils.JedisUtils;
 import com.ty.common.utils.StringUtils;
-
 import com.ty.modules.msg.entity.MsgReport;
+import com.ty.modules.msg.entity.Tunnel;
 import com.ty.modules.sys.service.MsgRecordService;
 import com.ty.modules.sys.service.MsgReplyService;
 import com.ty.modules.sys.service.MsgReportService;
 import com.ty.modules.sys.service.MsgResponseService;
-import com.ty.modules.msg.entity.Tunnel;
+import com.ty.modules.tunnel.entity.MsgReply;
 import com.ty.modules.tunnel.reply.disruptor.MessageReplyEventProducer;
 import com.ty.modules.tunnel.report.disruptor.MessageReportEventProducer;
 import com.ty.modules.tunnel.response.disruptor.MessageResponseEventProducer;
 import com.ty.modules.tunnel.send.container.entity.MessageSend;
 import com.ty.modules.tunnel.send.container.entity.ThirdMessageSendTy;
 import com.ty.modules.tunnel.send.container.entity.container.tykj.*;
+
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
@@ -166,6 +167,7 @@ public class ThirdTykjMessagerContainer extends AbstractThirdPartyMessageContain
         }
     }
     @Override
+    //获取状态报告
     public void triggerMsgReportFetch() {
         long end1 = System.currentTimeMillis();
         StringBuilder result = null;
@@ -195,12 +197,29 @@ public class ThirdTykjMessagerContainer extends AbstractThirdPartyMessageContain
     }
 
     @Override
+    //获取上行报告
     public void triggerMsgReplyFetch() {
+        long end1 = System.currentTimeMillis();
+        StringBuilder result = null;
+        List<String> listString = new ArrayList<String>();
+        try {
+            List<ThirdTykjReplySimple> thirdTykjReplySimples  = convertToReplyClass();//从redis获取数据
+            List<MsgReply> msgReplys=getMsgReplyList(thirdTykjReplySimples);//封装成上行报告
 
+            if (!thirdTykjReplySimples.isEmpty()) {
+                long end2 = System.currentTimeMillis();
+                logger.info("通道获取到上行数据进入disruptor的时间"+(end2-end1));
+                messageReplyEventProducer.onData(msgReplys);
+            } else {
+                logger.info("返回上行报告为空");
+            }
+        } catch (Exception e) {
+            logger.info("获取上行报告异常" + e.getMessage());
+        }
     }
 
     /**
-     * 从redis获取数据
+     * 从redis获取状态报告数据
      * @return
      */
     public List<ThirdTykjReportSimple> convertToClass() {
@@ -239,6 +258,48 @@ public class ThirdTykjMessagerContainer extends AbstractThirdPartyMessageContain
         }
         return Collections.EMPTY_LIST;
     }
+
+
+    /**
+     * 从redis获取上行报告数据
+     * @return
+     */
+    public List<ThirdTykjReplySimple> convertToReplyClass() {
+
+        long listLen = JedisUtils.llen(Global.FTCHRERPLY_REDIS_KEY);
+
+        if (listLen > 0 && Global.REDIS_GET_SWITCH == 1) {
+
+            if (listLen >  100) {
+                listLen = 100;
+            }
+            List<Object> list = JedisUtils.getObjectList(Global.FTCHRERPLY_REDIS_KEY, 0, (listLen - 1));//从redis中获取对象
+            JedisUtils.lTrim(Global.FTCHRERPLY_REDIS_KEY, listLen, -1);//截取偏移量范围内的list
+            try{
+                if (!list.isEmpty()) {
+                    List<ThirdTykjReplySimple> result = Lists.newArrayList();
+                    for (Object obj : list) {
+                        if (obj instanceof ThirdTykjReplyRedis) {
+                            ThirdTykjReplyRedis m = (ThirdTykjReplyRedis) obj;
+                            ThirdTykjReplySimple thirdTykjReplySimpleSimple = new ThirdTykjReplySimple();
+                            thirdTykjReplySimpleSimple.setMobile(m.getMobile());
+                            thirdTykjReplySimpleSimple.setContent(m.getContent());
+                            thirdTykjReplySimpleSimple.setExt(m.getExt());
+                            thirdTykjReplySimpleSimple.setReplyTime(m.getReplyTime());
+                            result.add(thirdTykjReplySimpleSimple);
+                        }
+                    }
+                    list.clear();
+                    return result;
+                }
+            }
+            catch (Exception e) {
+                JedisUtils.listObjectAdd(Global.FTCHRERPLY_REDIS_KEY, list);
+                logger.error("\r(o)(o) - - 执行失败, - - (o)(o)\r" + e.getMessage(), e);
+            }
+        }
+        return Collections.EMPTY_LIST;
+    }
 /*
 * 封装为MsgReport
 * */
@@ -261,6 +322,23 @@ public class ThirdTykjMessagerContainer extends AbstractThirdPartyMessageContain
         return result;
     }
 
+    /*
+     * 封装为MsgReply
+     * */
+    public List<MsgReply> getMsgReplyList(List<ThirdTykjReplySimple> thirdTykjReplySimples){
+        List<MsgReply> result = Lists.newArrayList();
+        if(thirdTykjReplySimples!=null){
+            for(ThirdTykjReplySimple thirdTykjReplySimple:thirdTykjReplySimples){
+                MsgReply msgReply = new MsgReply();
+                msgReply.setMobile(thirdTykjReplySimple.getMobile());
+                msgReply.setContent(thirdTykjReplySimple.getContent());
+                msgReply.setSrcId(thirdTykjReplySimple.getExt());
+                result.add(msgReply);
+
+            }
+        }
+        return result;
+    }
 }
 
 

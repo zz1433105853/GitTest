@@ -17,5 +17,15 @@
             (#{repo.id}, #{repo.msgId},#{mobile}, #{repo.arrivedStatus}, #{repo.arrivedTime}, #{repo.arrivedResultMessage}, now(), now())
         </foreach>
     </insert>
+    <!--查询符合条件的状态报告条数-->
+    <select id="findFetchedReportBySth" parameterType="string" resultType="java.lang.Integer">
+            SELECT
+            count(*)
+            FROM
+            ty_sms_send_report
+            WHERE
+            date (add_date) and
+            msg_id=#{taskid} and mobile=#{mobile} and arrived_status=#{arrivedStatus} and arrived_time=#{arrivedTime}
 
+	</select>
 </mapper>

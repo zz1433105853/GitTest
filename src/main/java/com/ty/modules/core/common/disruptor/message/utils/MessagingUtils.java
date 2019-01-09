@@ -6,7 +6,6 @@ import com.ty.common.utils.CacheUtils;
 import com.ty.common.utils.IspUtils;
 import com.ty.common.utils.JedisUtils;
 import com.ty.common.utils.StringUtils;
-import com.ty.modules.core.common.disruptor.message.MessageEventHandler;
 import com.ty.modules.msg.dao.AssignedCxTunnelDao;
 import com.ty.modules.msg.entity.*;
 import com.ty.modules.msg.service.BlackWhiteListService;
@@ -408,6 +407,8 @@ public class MessagingUtils {
                 result = new ThirdMessageSendHl(msgRecord);
             }else if(container instanceof  ThirdKlwsMessagerContainer){
                 result = new ThirdMessageSendklws(msgRecord);
+            }else if (container instanceof  ThirdQyxsMessagerContainer){
+                result = new ThirdMessageSendQyxs(msgRecord);
             }
         }
         return result;

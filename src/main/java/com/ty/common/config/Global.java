@@ -118,12 +118,13 @@ public class Global {
 	public static String SEND_REPORT_REDIS_KEY = "sendReport";
 	public static String SEND_RESPONSE_REDIS_KEY = "sendResponse";
 	public static String  FTCHREPORT_REDIS_KEY = "ftchReportPara";
+	public static String FTCHRERPLY_REDIS_KEY = "ftchReplyPara";
 	public static String  FTCHREPORTKLWS_REDIS_KEY ="ftchReportKlwsPara";
 
 	public static int REDIS_GET_SWITCH = 1;
 	/**
 	 * 获取配置
-	 * @see ${fns:getConfig('adminPath')}
+	 * @see {fns:getConfig('adminPath')}
 	 */
 	public static String getConfig(String key) {
 		String value = map.get(key);
@@ -137,7 +138,7 @@ public class Global {
 
 	/**
 	 * 页面获取常量
-	 * @see ${fns:getConst('YES')}
+	 * @see {fns:getConst('YES')}
 	 */
 	public static Object getConst(String field) {
 		try {
