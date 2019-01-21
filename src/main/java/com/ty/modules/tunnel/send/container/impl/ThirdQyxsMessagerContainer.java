@@ -5,7 +5,6 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.ty.common.mapper.JaxbMapper;
 import com.ty.common.utils.DateUtils;
-import com.ty.common.utils.MD5Utils;
 import com.ty.common.utils.StringUtils;
 import com.ty.modules.msg.entity.MsgResponse;
 import com.ty.modules.msg.entity.Tunnel;
@@ -20,9 +19,9 @@ import com.ty.modules.tunnel.response.disruptor.MessageResponseEventProducer;
 import com.ty.modules.tunnel.send.container.entity.MessageSend;
 import com.ty.modules.tunnel.send.container.entity.ThirdMessageSendQyxs;
 import com.ty.modules.tunnel.send.container.entity.container.qyxs.ThirdQyxsBalanceResult;
+import com.ty.modules.tunnel.send.container.entity.container.qyxs.ThirdQyxsMoReportResult;
 import com.ty.modules.tunnel.send.container.entity.container.qyxs.ThirdQyxsSendMsgResult;
 import com.ty.modules.tunnel.send.container.entity.container.qyxs.ThirdQyxsSendReportResult;
-import com.ty.modules.tunnel.send.container.entity.container.ymqy.ThirdYmqyMoReportResult;
 import org.apache.log4j.Logger;
 
 import java.util.Date;
@@ -65,6 +64,7 @@ public class ThirdQyxsMessagerContainer extends AbstractThirdPartyMessageContain
     @Override
     //企业信使发送短信
     public boolean sendMsg(MessageSend ms) {
+        logger.info("into Qyxs sendMsg");
         ThirdMessageSendQyxs messageSend = (ThirdMessageSendQyxs) ms;
         String mobile = messageSend.getMobile();
         String content = messageSend.getContent();
@@ -78,7 +78,12 @@ public class ThirdQyxsMessagerContainer extends AbstractThirdPartyMessageContain
                     .field("content", content)
                     .field("sendTime", "")
                     .field("extno", messageSend.getSrcId()).asString();
+            logger.info("paramter::url="+this.url);
+            logger.info("paramter::userid="+this.userId);
+            logger.info("paramter::account="+this.account);
+            logger.info("paramter::password="+password);
             String xmlResult = result.getBody();
+            logger.info("xmlResult:"+xmlResult);
             logger.info(StringUtils.builderString(this.getTdName(), xmlResult));
             ThirdQyxsSendMsgResult thirdQyxsSendMsgResult = JaxbMapper.fromXml(xmlResult, ThirdQyxsSendMsgResult.class);
             if(thirdQyxsSendMsgResult!=null) {
@@ -90,20 +95,43 @@ public class ThirdQyxsMessagerContainer extends AbstractThirdPartyMessageContain
                 return false;
             }
         } catch (Exception e) {
+            logger.info("QYXS sengMsg shibai");
             return false;
         }
     }
 
 
     @Override
-    //返回状态报告
+    //返回状态报告 2019/1/12 zz
+    /*code is far away from bug with the animal protecting
+     *  ┏┓　　　┏┓
+     *┏┛┻━━━┛┻┓
+     *┃　　　　　　　┃
+     *┃　　　━　　　┃
+     *┃　┳┛　┗┳　┃
+     *┃　　　　　　　┃
+     *┃　　　┻　　　┃
+     *┃　　　　　　　┃
+     *┗━┓　　　┏━┛
+     *　　┃　　　┃神兽保佑
+     *　　┃　　　┃代码无BUG！
+     *　　┃　　　┗━━━┓
+     *　　┃　　　　　　　┣┓
+     *　　┃　　　　　　　┏┛
+     *　　┗┓┓┏━┳┓┏┛
+     *　　　┃┫┫　┃┫┫
+     *　　　┗┻┛　┗┻┛
+     *
+     */
     public void triggerMsgReportFetch() {
+        logger.info("into triggerMsgReportFetch方法");
         try {
             HttpResponse<String> result = Unirest.post(this.url+"/statusApi.aspx")
                     .field("action", "query")
                     .field("userid", userId)
                     .field("account",this.account)
                     .field("password", this.password).asString();
+            logger.info("状态报告信息："+this.userId+this.account+this.password+this.url);
             String xmlResult = result.getBody();
             logger.info(this.getTdName()+": result "+xmlResult);
             ThirdQyxsSendReportResult thirdQyxsSendReportResult = JaxbMapper.fromXml(xmlResult, ThirdQyxsSendReportResult.class);
@@ -120,7 +148,7 @@ public class ThirdQyxsMessagerContainer extends AbstractThirdPartyMessageContain
 
     @Override
     /**
-     *返回上行报告，功能待定
+     *返回上··行报告，
      */
     public void triggerMsgReplyFetch() {
         String timestamp = DateUtils.formatDate(new Date(),"yyyyMMddHHmmss");
@@ -128,23 +156,23 @@ public class ThirdQyxsMessagerContainer extends AbstractThirdPartyMessageContain
             HttpResponse<String> result = Unirest.post(this.url+"/v2callApi.aspx")
                     .field("action", "query")
                     .field("userid", userId)
-                    .field("sign", MD5Utils.getMD5(this.account+this.password+timestamp))
-                    .field("timestamp",timestamp).asString();
+                    .field("account", this.account)
+                    .field("password",this.password).asString();
             String xmlResult = result.getBody();
-            logger.info(this.getTdName()+": result "+xmlResult);
-            ThirdYmqyMoReportResult thirdYmqyMoReportResult = JaxbMapper.fromXml(xmlResult, ThirdYmqyMoReportResult.class);
-            if(thirdYmqyMoReportResult!=null && thirdYmqyMoReportResult.getReturnsms() != null) {
+            logger.info("qYXS上行"+this.getTdName()+": result "+xmlResult);
+            ThirdQyxsMoReportResult thirdQyxsMoReportResult = JaxbMapper.fromXml(xmlResult, ThirdQyxsMoReportResult.class);
+            if(thirdQyxsMoReportResult!=null && thirdQyxsMoReportResult.getReturnsms() != null) {
 
-                Map<String, MsgResponse> mrMap = msgResponseService.loadMsgResponseInfoMapByMsgIds(thirdYmqyMoReportResult.getAssocatedCustomerIds());
-
-                List<MsgReply> msgReplyList = thirdYmqyMoReportResult.getMsgReplyList(mrMap);
-
+                Map<String, MsgResponse> mrMap = msgResponseService.loadMsgResponseInfoMapByMsgIds(thirdQyxsMoReportResult.getAssocatedCustomerIds());
+                    logger.info("mrMap::"+mrMap);
+                List<MsgReply> msgReplyList = thirdQyxsMoReportResult.getMsgReplyList(mrMap);
+                    logger.info("msgReplyList:"+msgReplyList);
                 messageReplyEventProducer.onData(msgReplyList);
             }else{
                 logger.info("返回上行报告为空");
             }
         } catch (Exception e) {
-            logger.info("获取状态报告异常"+e.getMessage());
+            logger.info("获取上行报告异常"+e.getMessage());
         }
     }
 

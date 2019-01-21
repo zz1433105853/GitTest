@@ -4,15 +4,14 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
 /**
- * Created by Ysw on 2019/1/8
+ * Created by Ysw on 2016/7/4.
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-public class ThirdQyxsSendReportSingleResult {
+public class ThirdQyxsReportSingleResult {
 
     private String mobile;
     private String taskid;
-
-    private String status;
+    private String content;
     private String extno;
     private String receivetime;
 
@@ -32,13 +31,12 @@ public class ThirdQyxsSendReportSingleResult {
         this.taskid = taskid;
     }
 
-
-    public String getStatus() {
-        return status;
+    public String getContent() {
+        return content;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setContent(String content) {
+        this.content = content;
     }
 
     public String getReceivetime() {
@@ -47,10 +45,6 @@ public class ThirdQyxsSendReportSingleResult {
 
     public void setReceivetime(String receivetime) {
         this.receivetime = receivetime;
-    }
-
-    public String getReceiveStatus(){
-       return "10".equals(this.status)?"1":"2";
     }
 
     public String getExtno() {

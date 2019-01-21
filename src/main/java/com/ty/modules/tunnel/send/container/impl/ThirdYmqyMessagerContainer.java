@@ -141,7 +141,7 @@ public class ThirdYmqyMessagerContainer extends AbstractThirdPartyMessageContain
                 logger.info("返回上行报告为空");
             }
         } catch (Exception e) {
-            logger.info("获取状态报告异常"+e.getMessage());
+            logger.info("获取上行报告异常"+e.getMessage());
         }
     }
 
